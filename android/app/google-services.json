@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "64774088793",
+    "project_id": "ghchinoy-genai-sa",
+    "storage_bucket": "ghchinoy-genai-sa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:64774088793:android:cab52e021e59f3d607a948",
+        "android_client_info": {
+          "package_name": "aaie.ghchinoy.flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUjNmEjb3bYv2VhAx2TwKc72TNL-8XbW4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

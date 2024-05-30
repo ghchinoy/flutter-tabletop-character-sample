@@ -15,13 +15,18 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:firebase_vertexai/firebase_vertexai.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:url_launcher/link.dart';
 
+import 'firebase_options.dart';
 import 'theme.dart';
 import 'util.dart';
 
-void main() {
+Future<void> main() async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const GenerativeAISample());
 }
 
@@ -61,12 +66,7 @@ class _ChatScreenState extends State<ChatScreen> {
         title:
             Text(widget.title, style: Theme.of(context).textTheme.titleMedium),
       ),
-      body: switch (apiKey) {
-        final providedKey? => ChatWidget(apiKey: providedKey),
-        _ => ApiKeyWidget(onSubmitted: (key) {
-            setState(() => apiKey = key);
-          }),
-      },
+      body: const ChatWidget(),
     );
   }
 }
@@ -135,9 +135,7 @@ class ApiKeyWidget extends StatelessWidget {
 }
 
 class ChatWidget extends StatefulWidget {
-  const ChatWidget({required this.apiKey, super.key});
-
-  final String apiKey;
+  const ChatWidget({super.key});
 
   @override
   State<ChatWidget> createState() => _ChatWidgetState();
@@ -154,7 +152,8 @@ class _ChatWidgetState extends State<ChatWidget> {
   @override
   void initState() {
     super.initState();
-    service = CharacterService(widget.apiKey);
+    //service = CharacterService(widget.apiKey);
+    service = CharacterService();
   }
 
   Widget _buildForm(BuildContext context) {
@@ -370,7 +369,7 @@ class _ChatWidgetState extends State<ChatWidget> {
           const SizedBox(height: 32),
           Text(
             'Something has gone wrong. Double check your network '
-            'connection and API key, and then give it another try!',
+            'connection and then give it another try!',
             style: theme.textTheme.bodyLarge,
           ),
           const SizedBox(height: 32),
@@ -442,7 +441,7 @@ InputDecoration textFieldDecoration(BuildContext context, String hintText) =>
     );
 
 class CharacterService {
-  final String apiKey;
+  //final String apiKey;
 
   late final GenerativeModel model;
 
@@ -460,8 +459,9 @@ class CharacterService {
     SafetySetting(HarmCategory.dangerousContent, HarmBlockThreshold.medium),
   ];
 
-  CharacterService(this.apiKey) {
-    model = GenerativeModel(model: 'gemini-pro', apiKey: apiKey);
+  CharacterService() {
+    model = FirebaseVertexAI.instance
+        .generativeModel(model: 'gemini-1.5-flash-preview-0514');
   }
 
   Future<Character> generateCharacter(String description, String role,
@@ -607,7 +607,8 @@ Content createPrompt(
         'fantasy realm. Examples:'),
     TextPart(example1),
     TextPart(example2),
-    TextPart('Only return valid JSON adhering to the following schema:'),
+    TextPart(
+        'Only return valid JSON adhering to the following schema without any markdown:'),
     TextPart(outputSchema),
     TextPart('Generate a new character with the following '
         'description: "$description", '
